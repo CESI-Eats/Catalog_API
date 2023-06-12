@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.get('/', authorize([IdentityType.USER]), myModelController.getAllMyModels);
 router.get('/:id', myModelController.getMyModel);
-router.post('/', myModelController.createMyModel);
-router.put('/:id', myModelController.updateMyModel);
-router.delete('/:id', myModelController.deleteMyModel);
+router.post('/', authorize([IdentityType.RESTORER]), myModelController.createMyModel);
+router.put('/:id', authorize([IdentityType.RESTORER]), myModelController.updateMyModel);
+router.delete('/:id', authorize([IdentityType.RESTORER]), myModelController.deleteMyModel);
 
 export default router;
