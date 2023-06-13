@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
-import MyModel from '../models/myModel';
+import Catalog from '../models/myModel';
+import mongoose from 'mongoose';
 
 // Get all
-export const getAllMyModels = async (req: Request, res: Response) => {
+export const getCatalogArticles = async (req: Request, res: Response) => {
   try {
-    console.log((req as any).identityId);
-    const myModels = await MyModel.find();
-    res.status(200).json(myModels);
+      const catalog = await Catalog.findById(req.params.catalogId);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+      
+      res.json(catalog.articles);
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'An error occurred';
     res.status(500).json({ message: errMessage });
@@ -14,13 +18,19 @@ export const getAllMyModels = async (req: Request, res: Response) => {
 };
 
 // Get specific one
-export const getMyModel = async (req: Request, res: Response) => {
+export const getCatalogArticle = async (req: Request, res: Response) => {
   try {
-    const myModel = await MyModel.findById(req.params.id);
-    if (myModel == null) {
-      return res.status(404).json({ message: 'Cannot find myModel' });
-    }
-    res.status(200).json(myModel);
+      const catalog = await Catalog.findById(req.params.catalogId);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+
+      const articleIndex = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
+      if (articleIndex === -1) {
+          return res.status(404).json({ message: 'Cannot find article' });
+      }
+
+      res.json(catalog.articles[articleIndex]);
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'An error occurred';
     res.status(500).json({ message: errMessage });
@@ -28,39 +38,83 @@ export const getMyModel = async (req: Request, res: Response) => {
 };
 
 // Create
-export const createMyModel = async (req: Request, res: Response) => {
-  const myModel = new MyModel({
-    title: req.body.title,
-    description: req.body.description,
-    items: req.body.items
-  });
+export const createCatalogArticle = async (req: Request, res: Response) => {
   try {
-    const newMyModel = await myModel.save();
-    res.status(201).json(newMyModel);
+      const catalog = await Catalog.findById(req.params.catalogId);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+      
+      const article = {
+          _id: new mongoose.Types.ObjectId(),
+          name: req.body.name,
+          description: req.body.description,
+          image: req.body.image,
+          price: req.body.price
+      };
+
+      catalog.articles.push(article);
+      const updatedCatalog = await catalog.save();
+      res.status(201).json(updatedCatalog);
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(400).json({ message: errMessage });
+    res.status(400).json({ message: errMessage });  
   }
 };
 
+
 // Update
-export const updateMyModel = async (req: Request, res: Response) => {
+export const updateCatalogArticle = async (req: Request, res: Response) => {
   try {
-    const updatedMyModel = await MyModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(updatedMyModel);
+      const catalog = await Catalog.findById(req.params.catalogId);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+
+      const article = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
+      if (article === -1) {
+          return res.status(404).json({ message: 'Cannot find article' });
+      }
+      
+      if (req.body.name != null) {
+        catalog.articles[article].name = req.body.name;
+      }
+      if (req.body.description != null) {
+          catalog.articles[article].description = req.body.description;
+      }
+      if (req.body.image != null) {
+          catalog.articles[article].image = req.body.image;
+      }
+      if (req.body.price != null) {
+          catalog.articles[article].price = req.body.price;
+      }
+      
+      const updatedCatalog = await catalog.save();
+      res.json(updatedCatalog);
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(400).json({ message: errMessage });
+    res.status(500).json({ message: errMessage });  
   }
 };
 
 // Delete
-export const deleteMyModel = async (req: Request, res: Response) => {
+export const deleteCatalogArticle = async (req: Request, res: Response) => {
   try {
-    await MyModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'MyModel deleted' });
+      const catalog = await Catalog.findById(req.params.catalogId);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+
+      const articleIndex = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
+      if (articleIndex === -1) {
+          return res.status(404).json({ message: 'Cannot find article' });
+      }
+
+      catalog.articles.splice(articleIndex, 1);
+
+      const updatedCatalog = await catalog.save();
+      res.json(updatedCatalog);
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(500).json({ message: errMessage });
-  }
+    res.status(500).json({ message: errMessage });   }
 };
