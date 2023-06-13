@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-// Define schema for myModel
-const MyModelSchema = new mongoose.Schema({
-  title: {
+// Define schema for Catalog
+const CatalogSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: true,
   },
@@ -10,11 +10,55 @@ const MyModelSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  created_at: {
-    type: Date,
-    default: Date.now
+  image: {
+    type: String,
+    required: true,
+  },
+  menus: {
+    type: mongoose.Types.ObjectId,
+    ref: 'Menu',
+  }
+});
+
+// Define schema for Menu
+const MenuSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  menus: {
+    type: mongoose.Types.ObjectId,
+    ref: 'Articles',
+  }
+});
+
+// Define schema for Articles
+const ArticlesSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
   }
 });
 
 // Export model
-export default mongoose.model('MyModel', MyModelSchema);
+export default mongoose.model('MyModel', CatalogSchema);
