@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import Catalog from '../models/myModel';
+import { Catalog, Menu, Article } from '../models/myModel';
 import mongoose from 'mongoose';
+
 
 // Restorer
 // Catalogs
@@ -60,6 +61,29 @@ export const updateCatalog = async (req: Request, res: Response) => {
   }
 };
 
+// GET all catalogs
+export const getCatalogs = async (req: Request, res: Response) => {
+  try {
+      const catalogs = await Catalog.find();
+      res.json(catalogs);
+  } catch (err) {
+    const errMessage = err instanceof Error ? err.message : 'An error occurred';
+    res.status(500).json({ message: errMessage });    }
+};
+
+// GET a specific catalog by ID
+export const getCatalogById = async (req: Request, res: Response) => {
+  try {
+      const catalog = await Catalog.findById(req.params.id);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
+      res.json(catalog);
+  } catch (err) {
+    const errMessage = err instanceof Error ? err.message : 'An error occurred';
+    res.status(500).json({ message: errMessage });    }
+};
+
 // Articles
 // Create Article
 export const createArticle = async (req: Request, res: Response) => {
@@ -96,9 +120,77 @@ export const createArticle = async (req: Request, res: Response) => {
   }
 };
 
+// Update Article
+export const updateArticle = async (req: Request, res: Response) => {
+  const { name, description, image, price } = req.body;
+
+  try {
+      const catalog = await Catalog.findById(req.params.catalogId);
+
+      if (!catalog) {
+          return res.status(404).json({
+              message: "No Catalog found with this ID"
+          });
+      }
+
+      const article = await Article.findById(req.params.articleId);
+
+      if (!article) {
+          return res.status(404).json({
+              message: "No Article found with this ID in the specified Catalog"
+          });
+      }
+
+      article.set({
+          name: name,
+          description: description,
+          image: image,
+          price: price
+      });
+
+      const result = await catalog.save();
+
+      res.status(200).json({
+          message: "Article successfully updated",
+          result: result
+      });
+  } catch (error) {
+      res.status(500).json({
+          error: error
+      });
+  }
+};
+
+// Delete Article
+export const deleteArticle = async (req: Request, res: Response) => {
+  try {
+    const catalog = await Catalog.findById(req.params.catalogId);
+
+      if (!catalog) {
+          return res.status(404).json({
+              message: "No Catalog found with this ID"
+          });
+      }
+    catalog.articles = catalog.articles.filter(article => article._id.toString() !== req.params.articleId);
+    await catalog.save();
+    res.status(200).json({ message: "Article removed successfully." });
+  } catch (error) {
+    res.status(500).json({
+        error: error
+    });
+}
+};
+
+// Menus
+// Create Menu
 
 
 
+// Update Menu
+
+
+
+// Delete Menu
 
 // Update Catalog
 export const updateCatalogArticle = async (req: Request, res: Response) => {
