@@ -12,8 +12,8 @@ router.put('/catalogs/:id', myModelController.updateCatalog);
 
 // ARTICLES
 router.post('/:catalogId/articles', myModelController.createArticle);
-router.put('/articles/:id', myModelController.updateCatalogArticle);
-router.delete('/articles/:id', myModelController.deleteCatalogArticle);
+router.put('/:catalogId/articles/:id', myModelController.updateArticle);
+router.delete('/:catalogId/articles/:id', myModelController.deleteArticle);
 
 // MENUS
 //router.post('/menus', myModelController.createCatalogArticle);
@@ -22,11 +22,11 @@ router.delete('/menus/:id', myModelController.deleteCatalogArticle);
 
 // User
 // CATALOGS
-router.get('/catalogs', myModelController.getCatalogArticles);
+router.get('/catalogs', myModelController.getCatalogs);
 
 // Restorer & User
 // CATALOGS
-router.get('/catalogs/:id', myModelController.getCatalogArticle);
+router.get('/catalogs/:id', myModelController.getCatalogById);
 
 
 
