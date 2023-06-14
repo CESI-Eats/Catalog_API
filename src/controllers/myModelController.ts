@@ -36,6 +36,10 @@ export const updateCatalog = async (req: Request, res: Response) => {
   const { restorerId, description, image, menus:[], articles:[] } = req.body;
 
   try {
+      const catalog = await Catalog.findById(req.params.id);
+      if (catalog == null) {
+          return res.status(404).json({ message: 'Cannot find catalog' });
+      }
       const updatedCatalog = await Catalog.findByIdAndUpdate(req.params.id, {
           restorerId: restorerId,
           description: description,
@@ -122,44 +126,40 @@ export const createArticle = async (req: Request, res: Response) => {
 
 // Update Article
 export const updateArticle = async (req: Request, res: Response) => {
-  const { name, description, image, price } = req.body;
-
   try {
-      const catalog = await Catalog.findById(req.params.catalogId);
+    const catalog = await Catalog.findById(req.params.catalogId);
 
-      if (!catalog) {
-          return res.status(404).json({
-              message: "No Catalog found with this ID"
-          });
-      }
+    if (!catalog) {
+        return res.status(404).json({
+            message: "No Catalog found with this ID"
+        });
+    }
 
-      const article = await Article.findById(req.params.articleId);
+    const articleIndex = catalog.articles.findIndex(article => article._id.toString() === req.params.id);
 
-      if (!article) {
-          return res.status(404).json({
-              message: "No Article found with this ID in the specified Catalog"
-          });
-      }
+    if (articleIndex === -1) {
+        return res.status(404).json({
+            message: "No Article found with this ID in the specified Catalog"
+        });
+    }
 
-      article.set({
-          name: name,
-          description: description,
-          image: image,
-          price: price
-      });
+    // Update the article details
+    catalog.articles[articleIndex].name = req.body.name;
+    catalog.articles[articleIndex].description = req.body.description;
+    catalog.articles[articleIndex].image = req.body.image;
+    catalog.articles[articleIndex].price = req.body.price;
 
-      const result = await catalog.save();
+    await catalog.save();
 
-      res.status(200).json({
-          message: "Article successfully updated",
-          result: result
-      });
-  } catch (error) {
-      res.status(500).json({
-          error: error
-      });
+    res.json({ message: 'Article has been updated', article: catalog.articles[articleIndex] });
+  }
+  catch (error) {
+    res.status(500).json({
+        error: error
+    });
   }
 };
+
 
 // Delete Article
 export const deleteArticle = async (req: Request, res: Response) => {
@@ -182,115 +182,88 @@ export const deleteArticle = async (req: Request, res: Response) => {
 };
 
 // Menus
-// Create Menu
+// POST a new Menu in a specific Catalog
+export const createMenu = async (req: Request, res: Response) => {
+  const catalog = await Catalog.findById(req.params.catalogId);
+  if (!catalog) {
+      return res.status(404).json({ message: 'Cannot find catalog' });
+  }
+  const menu = new Menu({
+      _id: new mongoose.Types.ObjectId(),
+      name: req.body.name,
+      description: req.body.description,
+      image: req.body.image,
+      articles: req.body.articles,
+  });
+  catalog.menus.push(menu);
+  await catalog.save();
+  res.status(201).json(menu);
+};
 
-
-
-// Update Menu
-
-
-
-// Delete Menu
-
-// Update Catalog
-export const updateCatalogArticle = async (req: Request, res: Response) => {
+// PUT a specific Menu in a specific Catalog
+export const updateMenu = async (req: Request, res: Response) => {
   try {
       const catalog = await Catalog.findById(req.params.catalogId);
-      if (catalog == null) {
-          return res.status(404).json({ message: 'Cannot find catalog' });
+
+      if (!catalog) {
+          return res.status(404).json({
+              message: "No Catalog found with this ID"
+          });
       }
 
-      const article = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
-      if (article === -1) {
-          return res.status(404).json({ message: 'Cannot find article' });
+      const menuIndex = catalog.menus.findIndex(menu => menu._id.toString() === req.params.id);
+
+      if (menuIndex === -1) {
+          return res.status(404).json({
+              message: "No Menu found with this ID in the specified Catalog"
+          });
       }
-      
-      if (req.body.name != null) {
-        catalog.articles[article].name = req.body.name;
-      }
-      if (req.body.description != null) {
-          catalog.articles[article].description = req.body.description;
-      }
-      if (req.body.image != null) {
-          catalog.articles[article].image = req.body.image;
-      }
-      if (req.body.price != null) {
-          catalog.articles[article].price = req.body.price;
-      }
-      
-      const updatedCatalog = await catalog.save();
-      res.json(updatedCatalog);
-  } catch (err) {
-    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(500).json({ message: errMessage });  
+
+      // Update the menu details
+      catalog.menus[menuIndex].name = req.body.name;
+      catalog.menus[menuIndex].description = req.body.description;
+      catalog.menus[menuIndex].image = req.body.image;
+      catalog.menus[menuIndex].articles = req.body.articles;
+
+      await catalog.save();
+
+      res.json({ message: 'Menu has been updated', menu: catalog.menus[menuIndex] });
+  }
+  catch (error) {
+      res.status(500).json({
+          error: error
+      });
   }
 };
 
 
-
-
-
-
-
-
-
-
-
-// Get all
-export const getCatalogArticles = async (req: Request, res: Response) => {
+// DELETE a specific Menu in a specific Catalog
+export const deleteMenu = async (req: Request, res: Response) => {
   try {
-      const catalog = await Catalog.findById(req.params.id);
-      if (catalog == null) {
-          return res.status(404).json({ message: 'Cannot find catalog' });
-      }
-      
-      res.json(catalog.articles);
-  } catch (err) {
-    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(500).json({ message: errMessage });
+    const catalog = await Catalog.findById(req.params.catalogId);
+
+    if (!catalog) {
+        return res.status(404).json({
+            message: "No Catalog found with this ID"
+        });
+    }
+
+    const menuIndex = catalog.menus.findIndex(menu => menu._id.toString() === req.params.menuId.toString());
+
+    if (menuIndex === -1) {
+        return res.status(404).json({
+            message: "No Menu found with this ID in the specified Catalog"
+        });
+    }
+    
+    // Remove menu from the array
+    catalog.menus.splice(menuIndex, 1);
+    await catalog.save();
+    res.json({ message: 'Menu has been deleted' });
   }
-};
-
-// Get specific one
-export const getCatalogArticle = async (req: Request, res: Response) => {
-  try {
-      const catalog = await Catalog.findById(req.params.id);
-      if (catalog == null) {
-          return res.status(404).json({ message: 'Cannot find catalog' });
-      }
-
-      const articleIndex = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
-      if (articleIndex === -1) {
-          return res.status(404).json({ message: 'Cannot find article' });
-      }
-
-      res.json(catalog.articles[articleIndex]);
-  } catch (err) {
-    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(500).json({ message: errMessage });
+  catch (error) {
+    res.status(500).json({
+        error: error
+    });
   }
-};
-
-
-
-// Delete
-export const deleteCatalogArticle = async (req: Request, res: Response) => {
-  try {
-      const catalog = await Catalog.findById(req.params.catalogId);
-      if (catalog == null) {
-          return res.status(404).json({ message: 'Cannot find catalog' });
-      }
-
-      const articleIndex = catalog.articles.findIndex(article => article._id.toString() === req.params.articleId);
-      if (articleIndex === -1) {
-          return res.status(404).json({ message: 'Cannot find article' });
-      }
-
-      catalog.articles.splice(articleIndex, 1);
-
-      const updatedCatalog = await catalog.save();
-      res.json(updatedCatalog);
-  } catch (err) {
-    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-    res.status(500).json({ message: errMessage });   }
 };

@@ -16,9 +16,9 @@ router.put('/:catalogId/articles/:id', myModelController.updateArticle);
 router.delete('/:catalogId/articles/:id', myModelController.deleteArticle);
 
 // MENUS
-//router.post('/menus', myModelController.createCatalogArticle);
-router.put('/menus/:id', myModelController.updateCatalogArticle);
-router.delete('/menus/:id', myModelController.deleteCatalogArticle);
+router.post('/:catalogId/menus', myModelController.createMenu);
+router.put('/:catalogId/menus/:id', myModelController.updateMenu);
+router.delete('/:catalogId/menus/:id', myModelController.deleteMenu);
 
 // User
 // CATALOGS
