@@ -1,8 +1,7 @@
 {
   "name": "catalog_api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Catalog manager for CESI Eats",
   "scripts": {
     "build": "vite build",
     "dev": "nodemon src/server.ts -w src/**/* -e ts",
