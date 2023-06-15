@@ -39,7 +39,7 @@ const MenuSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
-  articles: [ArticleSchema]
+  articles: [{ type: Schema.Types.ObjectId, ref: 'Article' }]
 })
 
 // Define schema for Catalog
@@ -58,4 +58,3 @@ const CatalogSchema = new mongoose.Schema({
 export const Catalog = mongoose.model<Catalog>('Catalog', CatalogSchema);
 export const Menu = mongoose.model<Menu>('Menu', MenuSchema);
 export const Article = mongoose.model<Article>('Article', ArticleSchema);
-
