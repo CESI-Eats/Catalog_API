@@ -5,10 +5,43 @@ import { IdentityType } from '../enums/identityType';
 
 const router = express.Router();
 
-router.get('/', authorize([IdentityType.USER]), myModelController.getAllMyModels);
-router.get('/:id', myModelController.getMyModel);
-router.post('/', myModelController.createMyModel);
-router.put('/:id', myModelController.updateMyModel);
-router.delete('/:id', myModelController.deleteMyModel);
+// Restorer
+// CATALOGS
+router.post('/catalogs', myModelController.createCatalog);
+router.put('/catalogs/:id', myModelController.updateCatalog);
+
+// ARTICLES
+router.post('/:catalogId/articles', myModelController.createArticle);
+router.put('/:catalogId/articles/:id', myModelController.updateArticle);
+router.delete('/:catalogId/articles/:id', myModelController.deleteArticle);
+
+// MENUS
+router.post('/:catalogId/menus', myModelController.createMenu);
+router.put('/:catalogId/menus/:id', myModelController.updateMenu);
+router.delete('/:catalogId/menus/:id', myModelController.deleteMenu);
+
+// User
+// CATALOGS
+router.get('/catalogs', myModelController.getCatalogs);
+
+// Restorer & User
+// CATALOGS
+router.get('/catalogs/:id', myModelController.getCatalogById);
+
+
+
+
+
+//router.get('/', myModelController.getCatalogArticles);
+//router.get('/:id', myModelController.getCatalogArticle);
+//router.post('/', myModelController.createCatalogArticle);
+//router.put('/:id', myModelController.updateCatalogArticle);
+//router.delete('/:id', myModelController.deleteCatalogArticle);
+
+//router.get('/', authorize([IdentityType.USER]), myModelController.getCatalogArticles);
+//router.get('/:id', myModelController.getCatalogArticle);
+//router.post('/', authorize([IdentityType.RESTORER]), myModelController.createCatalogArticle);
+//router.put('/:id', authorize([IdentityType.RESTORER]), myModelController.updateCatalogArticle);
+//router.delete('/:id', authorize([IdentityType.RESTORER]), myModelController.deleteCatalogArticle);
 
 export default router;
