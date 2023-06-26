@@ -3,7 +3,7 @@ import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from 
 
 export function createCatalogExchange() {
     initExchange('catalog').then(exchange => {
-        initQueue(exchange, 'create.catalog').then(({queue, topic}) => {
+        initQueue(exchange, 'create.restorer.catalog').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -36,7 +36,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'update.catalog').then(({queue, topic}) => {
+        initQueue(exchange, 'update.restorer.catalog').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -74,7 +74,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'getAll.catalog').then(({queue, topic}) => {
+        initQueue(exchange, 'getAll.user.catalog').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -99,7 +99,36 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'get.catalog').then(({queue, topic}) => {
+        initQueue(exchange, 'get.restorer.catalog').then(({queue, topic}) => {
+            handleTopic(queue, topic, async (msg) => {
+                const message = msg.content as MessageLapinou;
+                try {
+                    console.log(` [x] Received message: ${JSON.stringify(message)}`);
+    
+                    const catalog = await Catalog.findById(message.content.id);
+
+                    if (catalog == null) {
+                        throw new Error("No Catalog found with this ID");
+                    }
+    
+                    await sendMessage({
+                        success: true,
+                        content: "Catalog recevied",
+                        correlationId: message.correlationId,
+                        sender: 'catalog'
+                    }, message.replyTo ?? '');
+                } catch (err) {
+                    const errMessage = err instanceof Error ? err.message : 'An error occurred';
+                    await sendMessage({
+                        success: false,
+                        content: errMessage,
+                        correlationId: message.correlationId,
+                        sender: 'catalog'
+                    }, message.replyTo ?? '');
+                }
+            })
+        });
+        initQueue(exchange, 'get.user.catalog').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -133,7 +162,7 @@ export function createCatalogExchange() {
         // Articles
 
 
-        initQueue(exchange, 'create.article').then(({queue, topic}) => {
+        initQueue(exchange, 'create.restorer.article').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -173,7 +202,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'update.article').then(({queue, topic}) => {
+        initQueue(exchange, 'update.restorer.article').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -216,7 +245,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'delete.article').then(({queue, topic}) => {
+        initQueue(exchange, 'delete.restorer.article').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -256,7 +285,7 @@ export function createCatalogExchange() {
         // Menu
 
 
-        initQueue(exchange, 'create.menu').then(({queue, topic}) => {
+        initQueue(exchange, 'create.restorer.menu').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -294,7 +323,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'update.menu').then(({queue, topic}) => {
+        initQueue(exchange, 'update.restorer.menu').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
@@ -337,7 +366,7 @@ export function createCatalogExchange() {
                 }
             })
         });
-        initQueue(exchange, 'delete.menu').then(({queue, topic}) => {
+        initQueue(exchange, 'delete.restorer.menu').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
                 try {
