@@ -3,39 +3,6 @@ import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from 
 
 export function createCatalogExchange() {
     initExchange('catalog').then(exchange => {
-        initQueue(exchange, 'create.restorer.catalog').then(({queue, topic}) => {
-            handleTopic(queue, topic, async (msg) => {
-                const message = msg.content as MessageLapinou;
-                try {
-                    console.log(` [x] Received message: ${JSON.stringify(message)}`);
-
-                    const catalog = new Catalog({
-                        _id: message.content.id,
-                        restorerId: message.content.restorerId,
-                        description: message.content.description,
-                        image: message.content.image,
-                        menus: [],
-                        articles: []
-                    });
-                    await catalog.save();
-
-                    await sendMessage({
-                        success: true,
-                        content: "Catalog created",
-                        correlationId: message.correlationId,
-                        sender: 'catalog'
-                    }, message.replyTo ?? '');
-                } catch (err) {
-                    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-                    await sendMessage({
-                        success: false,
-                        content: errMessage,
-                        correlationId: message.correlationId,
-                        sender: 'catalog'
-                    }, message.replyTo ?? '');
-                }
-            })
-        });
         initQueue(exchange, 'update.restorer.catalog').then(({queue, topic}) => {
             handleTopic(queue, topic, async (msg) => {
                 const message = msg.content as MessageLapinou;
