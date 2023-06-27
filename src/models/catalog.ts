@@ -18,6 +18,7 @@ interface Menu {
 }
 
 interface Catalog extends Document {
+  _id: String;
   restorerId: String;
   description: String;
   image: String;
