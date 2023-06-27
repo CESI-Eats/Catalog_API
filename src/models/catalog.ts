@@ -18,8 +18,7 @@ interface Menu {
 }
 
 interface Catalog extends Document {
-  _id: mongoose.Types.ObjectId;
-  restorerId: mongoose.Types.ObjectId;
+  restorerId: String;
   description: String;
   image: String;
   menus: Array<Menu>;
@@ -27,7 +26,7 @@ interface Catalog extends Document {
 }
 
 const ArticleSchema = new mongoose.Schema({
-  _id: { type: Schema.Types.ObjectId, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -35,7 +34,7 @@ const ArticleSchema = new mongoose.Schema({
 })
 
 const MenuSchema = new mongoose.Schema({
-  _id: { type: Schema.Types.ObjectId, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -44,7 +43,7 @@ const MenuSchema = new mongoose.Schema({
 
 // Define schema for Catalog
 const CatalogSchema = new mongoose.Schema({
-  restorerId: { type: Schema.Types.ObjectId, required: true },
+  restorerId: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
   menus: [MenuSchema],
