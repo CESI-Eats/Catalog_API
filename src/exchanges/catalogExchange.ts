@@ -16,7 +16,7 @@ export function createCatalogExchange() {
                     }
     
                     const updatedCatalog = await Catalog.findByIdAndUpdate(message.content.id, {
-                        restorerId: message.content.restorerId,
+                        name: message.content.name,
                         description: message.content.description,
                         image: message.content.image,
                     }, {new: true});

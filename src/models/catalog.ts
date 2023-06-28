@@ -19,6 +19,7 @@ interface Menu {
 
 interface Catalog extends Document {
   _id: String;
+  name: String;
   restorerId: String;
   description: String;
   image: String;
@@ -44,6 +45,7 @@ const MenuSchema = new mongoose.Schema({
 
 // Define schema for Catalog
 const CatalogSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   restorerId: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
