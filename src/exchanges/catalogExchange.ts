@@ -1,3 +1,4 @@
+import { UUID } from "typeorm/driver/mongodb/bson.typings";
 import {Catalog, Menu, Article} from "../models/catalog";
 import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from "../services/lapinouService";
 
@@ -15,7 +16,7 @@ export function createCatalogExchange() {
                     }
     
                     const updatedCatalog = await Catalog.findByIdAndUpdate(message.content.id, {
-                        restorerId: message.content.restorerId,
+                        name: message.content.name,
                         description: message.content.description,
                         image: message.content.image,
                     }, {new: true});
@@ -80,7 +81,7 @@ export function createCatalogExchange() {
     
                     await sendMessage({
                         success: true,
-                        content: "Catalog recevied",
+                        content: catalog,
                         correlationId: message.correlationId,
                         sender: 'catalog'
                     }, message.replyTo ?? '');
