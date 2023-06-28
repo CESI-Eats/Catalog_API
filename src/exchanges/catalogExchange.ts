@@ -1,6 +1,6 @@
 import {Catalog, Menu, Article} from "../models/catalog";
 import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from "../services/lapinouService";
-import { Types } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 
 export function createCatalogExchange() {
     initExchange('catalog').then(exchange => {
@@ -238,20 +238,22 @@ export function createCatalogExchange() {
                     if (!catalog) {
                         throw new Error ("No Catalog found with this ID");
                     }
-                
+                    
+                    const articlesId = message.content.articles.map((articleId: string) => Types.ObjectId.createFromHexString(articleId)); 
+
                     const menu = new Menu({
                         _id: message.content.id,
                         name: message.content.name,
                         description: message.content.description,
                         image: message.content.image,
-                        articles: message.content.articles,
+                        articles: articlesId,
                     });
                     catalog.menus.push(menu);
                     await catalog.save();
                 
                     await sendMessage({
                         success: true,
-                        content: "Menu created",
+                        content: catalog,
                         correlationId: message.correlationId,
                         sender: 'catalog'
                     }, message.replyTo ?? '');
@@ -284,12 +286,17 @@ export function createCatalogExchange() {
                         throw new Error ("No Menu found with this ID in the specified Catalog");
                     }
             
+                    if (message.content.articles.length === 0) {
+                        catalog.menus[menuIndex].articles = [] as any;
+                    }
+                    else {
+                        catalog.menus[menuIndex].articles = message.content.articles;
+                    }
+
                     // Update the menu details
                     catalog.menus[menuIndex].name = message.content.name;
                     catalog.menus[menuIndex].description = message.content.description;
                     catalog.menus[menuIndex].image = message.content.image;
-                    const articles = message.content.articles.map((articleId: string) => Types.ObjectId.createFromHexString(articleId));
-                    catalog.menus[menuIndex].articles = articles;
 
                     await catalog.save();
                 

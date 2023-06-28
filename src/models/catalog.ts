@@ -40,7 +40,10 @@ const MenuSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
-  articles: [{ type: Schema.Types.ObjectId, ref: 'Article' }]
+  articles: {
+    type: [String],
+    required: false
+  }
 })
 
 // Define schema for Catalog
