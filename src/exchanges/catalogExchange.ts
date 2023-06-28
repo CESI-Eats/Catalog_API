@@ -1,6 +1,6 @@
-import { UUID } from "typeorm/driver/mongodb/bson.typings";
 import {Catalog, Menu, Article} from "../models/catalog";
 import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from "../services/lapinouService";
+import { Types } from 'mongoose';
 
 export function createCatalogExchange() {
     initExchange('catalog').then(exchange => {
@@ -28,31 +28,6 @@ export function createCatalogExchange() {
                     await sendMessage({
                         success: true,
                         content: "Catalog updated",
-                        correlationId: message.correlationId,
-                        sender: 'catalog'
-                    }, message.replyTo ?? '');
-                } catch (err) {
-                    const errMessage = err instanceof Error ? err.message : 'An error occurred';
-                    await sendMessage({
-                        success: false,
-                        content: errMessage,
-                        correlationId: message.correlationId,
-                        sender: 'catalog'
-                    }, message.replyTo ?? '');
-                }
-            })
-        });
-        initQueue(exchange, 'getAll.user.catalog').then(({queue, topic}) => {
-            handleTopic(queue, topic, async (msg) => {
-                const message = msg.content as MessageLapinou;
-                try {
-                    console.log(` [x] Received message: ${JSON.stringify(message)}`);
-    
-                    await Catalog.find();
-    
-                    await sendMessage({
-                        success: true,
-                        content: "All catalog recevied",
                         correlationId: message.correlationId,
                         sender: 'catalog'
                     }, message.replyTo ?? '');
@@ -313,8 +288,9 @@ export function createCatalogExchange() {
                     catalog.menus[menuIndex].name = message.content.name;
                     catalog.menus[menuIndex].description = message.content.description;
                     catalog.menus[menuIndex].image = message.content.image;
-                    catalog.menus[menuIndex].articles = message.content.articles;
-            
+                    const articles = message.content.articles.map((articleId: string) => Types.ObjectId.createFromHexString(articleId));
+                    catalog.menus[menuIndex].articles = articles;
+
                     await catalog.save();
                 
                     await sendMessage({
