@@ -10,5 +10,5 @@ export function initLapinou() {
         createAccountExchange();
         createOrdersExchange();
         createCatalogsExchange();
-    });
+    }).catch((error) => console.log('Failed to connect to Lapinou.', error));
 }
