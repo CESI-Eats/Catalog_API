@@ -1,6 +1,6 @@
 import {Catalog, Menu, Article} from "../models/catalog";
 import {MessageLapinou, handleTopic, initExchange, initQueue, sendMessage} from "../services/lapinouService";
-import { ObjectId, Types } from 'mongoose';
+import mongoose, { ObjectId, Types } from 'mongoose';
 
 export function createCatalogExchange() {
     initExchange('catalog').then(exchange => {
@@ -118,7 +118,7 @@ export function createCatalogExchange() {
                     }
 
                     const article = new Article({
-                        _id: message.content.id,
+                        _id: new mongoose.Types.ObjectId(),
                         name: message.content.name,
                         description: message.content.description,
                         image: message.content.image,
@@ -242,7 +242,7 @@ export function createCatalogExchange() {
                     const articlesId = message.content.articles.map((articleId: string) => Types.ObjectId.createFromHexString(articleId)); 
 
                     const menu = new Menu({
-                        _id: message.content.id,
+                        _id: new mongoose.Types.ObjectId(),
                         name: message.content.name,
                         description: message.content.description,
                         image: message.content.image,
